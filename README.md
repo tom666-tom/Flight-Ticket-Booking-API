@@ -25,7 +25,7 @@ Built with **Spring Boot 3.x**, **Gradle**, **H2 in‑memory database**, and **J
 ### 1. Search available flights
 GET http://localhost:9090/api/flights?origin=New%20York&destination=London&date=2026-06-20
 
-### 2. Book a ticket**
+### 2. Book a ticket
 POST http://localhost:8080/api/bookings
 Content-Type: application/json
 {
@@ -34,11 +34,11 @@ Content-Type: application/json
   "seatsBooked": 2
 }
 
-### 3. View a booking**
-GET http://localhost:8080/api/bookings/2
+### 3. View a booking
+GET http://localhost:8080/api/bookings/A3F9K2L1
 
-### 4. Cancel a booking**
-DELETE http://localhost:8080/api/bookings/2
+### 4. Cancel a booking
+DELETE http://localhost:8080/api/bookings/A3F9K2L1
 
 
 
