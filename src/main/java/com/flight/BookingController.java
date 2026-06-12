@@ -33,18 +33,18 @@ public class BookingController {
         return BookingResponse.fromEntity(booking);
     }
 
-    @GetMapping("/{id}")
-    public BookingResponse getBooking(@PathVariable Long id) {
-        Booking booking = bookingService.getBookingById(id);
+    @GetMapping("/{bookingReference}")
+    public BookingResponse getBooking(@PathVariable String bookingReference) {
+        Booking booking = bookingService.getBookingByReference(bookingReference);
         log.debug("Retrieved booking: reference={}, passenger={}, status={}",
                 booking.getBookingReference(), booking.getPassengerName(), booking.getStatus());
         return BookingResponse.fromEntity(booking);
     }
 
-    @DeleteMapping("/{id}")
-    public BookingResponse cancelBooking(@PathVariable Long id) {
-        log.info("Attempting to cancel booking with id: {}", id);
-        Booking cancelled = bookingService.cancelBooking(id);
+    @DeleteMapping("/{bookingReference}")
+    public BookingResponse cancelBooking(@PathVariable String bookingReference) {
+        log.info("Attempting to cancel booking with reference: {}", bookingReference);
+        Booking cancelled = bookingService.cancelBooking(bookingReference);
         log.info("Booking with id: {} cancelled successfully. New status: {}",
                 cancelled.getId(), cancelled.getStatus());
         return BookingResponse.fromEntity(cancelled);

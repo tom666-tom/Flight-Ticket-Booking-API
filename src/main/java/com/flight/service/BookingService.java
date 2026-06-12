@@ -38,28 +38,33 @@ public class BookingService {
         return bookingRepository.save(booking);
     }
 
-    public Booking getBookingById(Long id) {
-        return bookingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
+    public Booking getBookingByReference(String bookingReference) {
+        log.debug("Fetching booking with reference={}", bookingReference);
+        return bookingRepository.findByBookingReference(bookingReference)
+                .orElseThrow(() -> new RuntimeException(
+                        "Booking not found with reference: " + bookingReference));
     }
 
     @Transactional
-    public Booking cancelBooking(Long id) {
-        Booking booking = getBookingById(id);
+    public Booking cancelBooking(String bookingReference) {
+        log.info("Cancelling booking reference={}", bookingReference);
+        Booking booking = getBookingByReference(bookingReference);
 
         if ("CANCELLED".equals(booking.getStatus())) {
+            log.info("Booking {} already cancelled, no action taken", bookingReference);
             return booking;
         }
 
         Flight flight = booking.getFlight();
         int restoredSeats = booking.getSeatsBooked();
-        flight.setAvailableSeats(flight.getAvailableSeats() + booking.getSeatsBooked());
+        flight.setAvailableSeats(flight.getAvailableSeats() + restoredSeats);
         flightService.saveFlight(flight);
 
         booking.setStatus("CANCELLED");
         Booking cancelled = bookingRepository.save(booking);
 
-        log.info("Booking {} cancelled, restored {} seats to flight {}", id, restoredSeats, flight.getId());
+        log.info("Booking {} cancelled, restored {} seats to flight {}",
+                bookingReference, restoredSeats, flight.getId());
         return cancelled;
     }
 }
