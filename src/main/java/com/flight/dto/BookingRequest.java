@@ -3,9 +3,11 @@ package com.flight.dto;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 public class BookingRequest {
     @NotNull
+    @Positive
     private Long flightId;
     @NotBlank
     private String passengerName;

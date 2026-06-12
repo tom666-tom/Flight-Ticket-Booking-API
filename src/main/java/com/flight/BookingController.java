@@ -8,10 +8,13 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api/bookings")
 public class BookingController {
+    private static final Logger log = LoggerFactory.getLogger(BookingController.class);
 
     @Autowired
     private BookingService bookingService;
@@ -19,23 +22,31 @@ public class BookingController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BookingResponse createBooking(@Valid @RequestBody BookingRequest request) {
+        log.info("Creating booking for flightId={}, passenger={}, seats={}",
+                request.getFlightId(), request.getPassengerName(), request.getSeatsBooked());
         Booking booking = bookingService.createBooking(
                 request.getFlightId(),
                 request.getPassengerName(),
                 request.getSeatsBooked()
         );
+        log.info("Booking created with id={}, reference={}", booking.getId(), booking.getBookingReference());
         return BookingResponse.fromEntity(booking);
     }
 
     @GetMapping("/{id}")
     public BookingResponse getBooking(@PathVariable Long id) {
         Booking booking = bookingService.getBookingById(id);
+        log.debug("Retrieved booking: reference={}, passenger={}, status={}",
+                booking.getBookingReference(), booking.getPassengerName(), booking.getStatus());
         return BookingResponse.fromEntity(booking);
     }
 
     @DeleteMapping("/{id}")
     public BookingResponse cancelBooking(@PathVariable Long id) {
+        log.info("Attempting to cancel booking with id: {}", id);
         Booking cancelled = bookingService.cancelBooking(id);
+        log.info("Booking with id: {} cancelled successfully. New status: {}",
+                cancelled.getId(), cancelled.getStatus());
         return BookingResponse.fromEntity(cancelled);
     }
 }

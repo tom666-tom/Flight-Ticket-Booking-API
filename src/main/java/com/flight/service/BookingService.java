@@ -6,9 +6,12 @@ import com.flight.repository.BookingRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class BookingService {
+    private static final Logger log = LoggerFactory.getLogger(BookingService.class);
 
     @Autowired
     private BookingRepository bookingRepository;
@@ -21,6 +24,8 @@ public class BookingService {
         Flight flight = flightService.getFlightById(flightId);
 
         if (flight.getAvailableSeats() < seatsBooked) {
+            log.warn("Insufficient seats for flight {}: requested {}, available {}",
+                    flightId, seatsBooked, flight.getAvailableSeats());
             throw new RuntimeException(
                     String.format("Only %d seats available, but you requested %d",
                             flight.getAvailableSeats(), seatsBooked));
@@ -47,10 +52,14 @@ public class BookingService {
         }
 
         Flight flight = booking.getFlight();
+        int restoredSeats = booking.getSeatsBooked();
         flight.setAvailableSeats(flight.getAvailableSeats() + booking.getSeatsBooked());
         flightService.saveFlight(flight);
 
         booking.setStatus("CANCELLED");
-        return bookingRepository.save(booking);
+        Booking cancelled = bookingRepository.save(booking);
+
+        log.info("Booking {} cancelled, restored {} seats to flight {}", id, restoredSeats, flight.getId());
+        return cancelled;
     }
 }
